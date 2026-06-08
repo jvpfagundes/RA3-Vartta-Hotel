@@ -1,7 +1,9 @@
 import json
+import os
 from datetime import datetime
 import state.database as db
 from config import ARQUIVO_RELATORIO_TXT, ARQUIVO_ESTADO_JSON
+from models import Room, Category, Item, Guest
 
 def salvar_relatorio_fechamento_txt() -> bool:
     """
@@ -86,4 +88,55 @@ def salvar_backup_estado_json() -> bool:
         return True
     except (TypeError, IOError) as e:
         print(f"Erro ao realizar o backup em json: {e}")
+        return False
+
+def carregar_backup_estado_json() -> bool:
+    """
+    Função/Classe: carregar_backup_estado_json
+    Params:
+    Descrição: Importa o estado do hotel a partir do arquivo json.
+    Returns: bool se a operação funcionou ou não
+    """
+    try:
+        if not os.path.exists(ARQUIVO_ESTADO_JSON):
+            print(f"Erro: Arquivo de backup '{ARQUIVO_ESTADO_JSON}' não encontrado.")
+            return False
+            
+        with open(ARQUIVO_ESTADO_JSON, "r", encoding="utf-8") as f:
+            dados = json.load(f)
+
+        db.categorias.clear()
+        db.estoque_produtos.clear()
+        db.quartos.clear()
+        db.historico_hospedes.clear()
+        
+        db.faturamento_diario = float(dados.get("faturamento_diario", 0.0))
+        db.historico_hospedes = dados.get("historico_hospedes", [])
+        
+        for nome, dados_cat in dados.get("categorias", {}).items():
+            db.categorias[nome] = Category(**dados_cat)
+            
+        for nome, dados_item in dados.get("estoque_produtos", {}).items():
+            db.estoque_produtos[nome] = Item(**dados_item)
+            
+        for num_str, dados_quarto in dados.get("quartos", {}).items():
+            num = int(num_str)
+            
+            dados_guest = dados_quarto.get("guest")
+            guest_obj = Guest(**dados_guest) if dados_guest else None
+            
+            dados_cat = dados_quarto.get("category")
+            category_obj = Category(**dados_cat) if dados_cat else None
+            
+            db.quartos[num] = Room(
+                number=num,
+                category=category_obj,
+                is_occupied=dados_quarto.get("is_occupied", False),
+                guest=guest_obj
+            )
+            
+        print(f"Backup carregado com sucesso de '{ARQUIVO_ESTADO_JSON}'!")
+        return True
+    except Exception as e:
+        print(f"Erro ao carregar o estado do JSON: {e}")
         return False

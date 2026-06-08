@@ -1,7 +1,11 @@
+import os
+import sys
 import state.database as db
 from models import Category, Room, Item
-from config import CATEGORIAS_PADRAO, PRODUTOS_PADRAO, SERVICOS_PADRAO, LIMITE_QUARTOS, QTD_PADRAO_CATEGORIAS
+from config import (CATEGORIAS_PADRAO, PRODUTOS_PADRAO, SERVICOS_PADRAO, LIMITE_QUARTOS, QTD_PADRAO_CATEGORIAS,
+                    ARQUIVO_ESTADO_JSON)
 from ui.helpers import obter_string, obter_float, obter_inteiro, obter_confirmacao
+from services.file_service import carregar_backup_estado_json
 
 def inicializar_hotel():
     """
@@ -10,6 +14,38 @@ def inicializar_hotel():
     Descrição: Função utilizada para inicializar as variáveis do hotel (como os produtos, categorias, etc).
     Returns:
     """
+
+
+    if os.path.exists(ARQUIVO_ESTADO_JSON):
+        while True:
+            print("\n" + "=" * 60)
+            print("             CONFIGURAÇÃO DE INICIALIZAÇÃO")
+            print("=" * 60)
+            print(" Detectamos um estado anterior salvo em JSON.")
+            print(" Como deseja prosseguir?")
+            print("\n [1] Retornar de onde paramos (Carregar JSON)")
+            print(" [2] Iniciar um novo expediente (Configuração Inicial)")
+            print(" [3] Sair do sistema")
+            print("-" * 60)
+            
+            opcao = obter_inteiro("Selecione a ação desejada (1 a 3): ", min_val=1, max_val=3)
+            
+            if opcao == 1:
+                if carregar_backup_estado_json():
+                    print("\nInicialização concluída! Pressione [ENTER] para entrar no painel administrativo...")
+                    input()
+                    return
+                else:
+                    print("\nErro ao carregar o backup. Retornando ao menu de inicialização...")
+            elif opcao == 2:
+                if obter_confirmacao("Atenção: Iniciar um novo expediente apagará o estado anterior. Continuar? (S/N): "):
+                    break
+                else:
+                    print("\nRetornando ao menu de inicialização...")
+            elif opcao == 3:
+                print("\nEncerrando o sistema...")
+                sys.exit(0)
+    
     for nome, rate in CATEGORIAS_PADRAO.items():
         db.categorias[nome] = Category(name=nome, daily_rate=rate)
 
@@ -26,6 +62,7 @@ def inicializar_hotel():
     
     print("\nInicialização concluída! Pressione [ENTER] para entrar no painel administrativo...")
     input()
+
 
 def inicializar_quartos():
     """
@@ -61,10 +98,10 @@ def inicializar_quartos():
         print("\nAplicando configuração padrão do hotel (10 quartos ativados):")
 
         contador = 101
-        for categoria in CATEGORIAS_PADRAO:
-            qtd = QTD_PADRAO_CATEGORIAS[categoria]
+        for cat_nome, cat_obj in db.categorias.items():
+            qtd = QTD_PADRAO_CATEGORIAS[cat_nome]
             for _ in range(qtd):
-                db.quartos[contador] = Room(number=contador, category=categoria)
+                db.quartos[contador] = Room(number=contador, category=cat_obj)
                 contador += 1
                 
         print("Configuração rápida carregada: 5 Standard, 3 Luxo, 2 Suítes.")
