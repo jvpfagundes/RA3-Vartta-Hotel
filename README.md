@@ -2,7 +2,7 @@
 
 ### Projeto: Vartta Hotel
 **Descrição**: Sistema em modo de terminal (CLI) robusto para administração operacional diária de um hotel. O software orquestra fluxos de check-in, controle de consumo (frigobar físico e serviços de lazer/quarto), checkout com cálculo automatizado de taxas/descontos, gestão de estoque e persistência de dados de fechamento diário.
-
+**Alunos/Turma**: João Victor Pontes de Oliveira Fagundes, Tales Augusto Tavares, João Flávio Sobral Dorea Correa. Turma de Engenharia de Software 1ºU
 
 ## Como utilizar?
 - Para utilizar o sistema, primeiro precisamos iniciar uma venv, baixar os requisitos e então rodar.
