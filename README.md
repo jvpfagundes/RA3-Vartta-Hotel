@@ -1,12 +1,12 @@
 # Vartta Hotel
 
-### Projeto: Vartta Hotel
-**Descrição**: Sistema em modo de terminal (CLI) robusto para administração operacional diária de um hotel. O software orquestra fluxos de check-in, controle de consumo (frigobar físico e serviços de lazer/quarto), checkout com cálculo automatizado de taxas/descontos, gestão de estoque e persistência de dados de fechamento diário.
+### Project: Vartta Hotel
+**Description**: Robust terminal-mode (CLI) system for daily operational management of a hotel. The software orchestrates check-in flows, consumption control (physical minibar and leisure/room services), checkout with automated fee/discount calculation, inventory management, and data persistence for daily closure.
 
-**Alunos/Turma**: João Victor Pontes de Oliveira Fagundes, Tales Augusto Tavares, João Flávio Sobral Dorea Correa. Turma de Engenharia de Software 1ºU
+**Students/Class**: João Victor Pontes de Oliveira Fagundes, Tales Augusto Tavares, João Flávio Sobral Dorea Correa. Software Engineering Class 1ºU
 
-## Como utilizar?
-- Para utilizar o sistema, primeiro precisamos iniciar uma venv, baixar os requisitos e então rodar.
+## How to Use?
+- To use the system, first we need to initialize a venv, download the requirements, and then run it.
 
 **Windows**:
 ```bash
@@ -25,90 +25,88 @@ python3 main.py
 ```
 ---
 
-## Arquitetura do Sistema
+## System Architecture
 
-O projeto adota uma estrutura modular focada na separação de responsabilidades (Single Responsibility Principle) e tipagem segura:
+The project adopts a modular structure focused on separation of concerns (Single Responsibility Principle) and type-safe design:
 
 ```
 root/
 │
-├── main.py              # Ponto de entrada e orquestração do loop do sistema
-├── config.py            # Definição de constantes e dados iniciais padrão
+├── main.py              # Entry point and system loop orchestration
+├── config.py            # Definition of constants and default initial data
 │
-├── models/              # Modelos de dados Pydantic (Validação e Estrutura)
+├── models/              # Pydantic data models (Validation and Structure)
 │   ├── category.py
 │   ├── guest.py
 │   ├── item.py
 │   └── room.py
 │
-├── services/            # Lógicas e regras de negócio
+├── services/            # Business logic and rules
 │   ├── admin_service.py
 │   ├── checkin_service.py
 │   ├── checkout_service.py
 │   ├── consumption_service.py
 │   └── file_service.py
 │
-├── state/               # Estado global em memória (Banco de Dados simulado)
+├── state/               # Global in-memory state (Simulated Database)
 │   └── database.py
 │
-└── ui/                  # Componentes de interface e helpers de entrada
+└── ui/                  # Interface components and input helpers
     ├── helpers.py
     └── screens.py
 ```
 
-### Módulo: `state` (Banco de Dados em Memória)
-- **Descrição**: Armazena o estado em memória das entidades da aplicação durante o tempo de execução, simulando tabelas de banco de dados.
-- **Tabelas (Variáveis)**:
-  - `quartos`: Dicionário contendo instâncias de [Room](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/room.py) indexados por número.
-  - `categorias`: Dicionário com [Category](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/category.py) de quartos.
-  - `estoque_produtos`: Dicionário de produtos e serviços cadastrados ([Item](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/item.py)).
-  - `historico_hospedes`: Histórico detalhado de hóspedes que já realizaram o checkout.
-  - `faturamento_diario`: Faturamento bruto acumulado no dia atual.
+### Module: `state` (In-Memory Database)
+- **Description**: Stores the in-memory state of application entities during runtime, simulating database tables.
+- **Tables (Variables)**:
+  - `quartos`: Dictionary containing [Room](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/room.py) instances indexed by number.
+  - `categorias`: Dictionary with [Category](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/category.py) of rooms.
+  - `estoque_produtos`: Dictionary of registered products and services ([Item](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/item.py)).
+  - `historico_hospedes`: Detailed history of guests who have already checked out.
+  - `faturamento_diario`: Gross billing accumulated on the current day.
 
-### Módulo: `models` (Modelos Pydantic)
-- **Descrição**: Define a tipagem estrita e validação dos dados de entrada.
+### Module: `models` (Pydantic Models)
+- **Description**: Defines strict typing and validation of input data.
 - **Classes**:
-  - [Guest](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/guest.py): Representação de hóspedes ativos e seus consumos/serviços extras acumulados.
-  - [Category](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/category.py): Categoria de quarto (Standard, Luxo, Suíte) com valor da diária associado.
-  - [Room](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/room.py): Quarto do hotel contendo número, categoria, status de ocupação e referência ao hóspede.
-  - [Item](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/item.py): Item físico do estoque ou serviço de lazer/quarto com preço, controle de quantidade e tipo.
+  - [Guest](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/guest.py): Representation of active guests and their accumulated consumptions/extra services.
+  - [Category](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/category.py): Room category (Standard, Luxury, Suite) with associated daily rate.
+  - [Room](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/room.py): Hotel room containing number, category, occupancy status, and guest reference.
+  - [Item](file:///Users/jfagundes/Documents/pessoal/puc/TCC/models/item.py): Physical inventory item or leisure/room service with price, quantity control, and type.
 
-### Módulo: `services` (Lógica de Negócios)
-- **Descrição**: Contém a lógica operacional isolada por domínio de atuação.
-- **Serviços**:
-  - [admin_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/admin_service.py): Inicialização do hotel, criação de categorias, visualização de estoque e mapa de ocupação gráfica dos quartos.
-  - [checkin_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/checkin_service.py): Orquestração de check-in, validando categorias disponíveis e alocando hóspedes.
-  - [consumption_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/consumption_service.py): Registro de consumo de itens do frigobar e prestação de serviços adicionais de lazer/SPA.
-  - [checkout_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/checkout_service.py): Fechamento de estadias, aplicação de desconto para estadias longas, cobrança de taxa municipal de ISS e desocupação.
-  - [file_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/file_service.py): Exportação de relatórios financeiros diários em TXT e persistência do backup global em JSON.
+### Module: `services` (Business Logic)
+- **Description**: Contains operational logic isolated by domain of operation.
+- **Services**:
+  - [admin_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/admin_service.py): Hotel initialization, category creation, inventory viewing, and occupancy map.
+  - [checkin_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/checkin_service.py): Check-in orchestration, validating available categories and allocating guests.
+  - [consumption_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/consumption_service.py): Record of minibar item consumption and provision of additional leisure services.
+  - [checkout_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/checkout_service.py): Closure of stays, application of discounts for long stays, charging management fees.
+  - [file_service.py](file:///Users/jfagundes/Documents/pessoal/puc/TCC/services/file_service.py): Export of daily financial reports in TXT and persistence of global backup in JSON.
 
-### Módulo: `ui` (Interface do Usuário)
-- **Descrição**: Apresentação visual interativa no terminal, incluindo efeitos estéticos e tratamentos de inputs robustos para evitar crashes.
-
----
-
-## Parâmetros Globais (`config.py`)
-- **Descrição**: Configurações editáveis que definem as restrições operacionais do hotel.
-- **Configurações**:
-  - `LIMITE_QUARTOS`: Limite de capacidade total de quartos.
-  - `CATEGORIAS_PADRAO`: Nome e valor das diárias padrão de cada categoria.
-  - `PRODUTOS_PADRAO`: Cadastro inicial de itens físicos de consumo e quantidade inicial em estoque.
-  - `SERVICOS_PADRAO`: Cadastro de serviços do hotel (lavanderia, massagens, SPA).
-  - `ARQUIVO_RELATORIO_TXT`: Localização e nome do relatório gerado.
-  - `ARQUIVO_ESTADO_JSON`: Arquivo de saída para persistência do estado e backup.
+### Module: `ui` (User Interface)
+- **Description**: Interactive visual presentation in the terminal, including aesthetic effects and robust input handling to prevent crashes.
 
 ---
 
-## Fluxo Principal de Execução (`main.py`)
-- **Função/Classe**: `main`
-- **Descrição**: Ponto de entrada que inicializa o hotel (com carregamento rápido padrão ou configuração manual de quartos pelo administrador) e gerencia o menu dinâmico de 8 opções. Adicionalmente, escuta interrupções forçadas (como Ctrl+C) para garantir o salvamento de segurança do estado em disco.
-- **Retorno/Resultados**:
-  - Geração de relatório de faturamento detalhado `relatorio_fechamento.txt`.
-  - Persistência estruturada em `estado_hotel.json`.
+## Global Parameters (`config.py`)
+- **Description**: Editable configurations that define the operational constraints of the hotel.
+- **Configurations**:
+  - `LIMITE_QUARTOS`: Limit of total room capacity.
+  - `CATEGORIAS_PADRAO`: Name and value of default daily rates for each category.
+  - `PRODUTOS_PADRAO`: Initial registration of physical consumption items and initial stock quantity.
+  - `SERVICOS_PADRAO`: Registration of hotel services (laundry, massages, SPA).
+  - `ARQUIVO_RELATORIO_TXT`: Location and name of the generated report.
+  - `ARQUIVO_ESTADO_JSON`: Output file for state persistence and backup.
 
+---
 
-## Bibliotecas não built in usadas:
-- **Pydantic**: Utilizado para tipagem robusta dos dados.
-- **Motivo**:
-  - Criação da nossa simulação de banco de dados. Usando BaseModel do pydantic conseguimos ter objetos personalizados e tipados, para criar "tabelas" para salvarmos nossos dados na memória local, persistindo por todo o projeto.
+## Main Execution Flow (`main.py`)
+- **Function/Class**: `main`
+- **Description**: Entry point that initializes the hotel (with default quick loading or manual room configuration by the administrator) and manages the dynamic menu of 8 options.
+- **Return/Results**:
+  - Generation of detailed billing report `relatorio_fechamento.txt`.
+  - Structured persistence in `estado_hotel.json`.
 
+## Third-party Libraries Used:
+- **Pydantic**: Used for robust data typing.
+- **Reason**:
+  - Creation of our database simulation. Using Pydantic's BaseModel, we can have custom and typed objects to create "tables" to save our data in memory.
